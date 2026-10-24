@@ -686,9 +686,3 @@ async def api_save_dossier(req: SaveDossierRequest):
         return JSONResponse({"success": True, "dossier_id": dossier_id})
     except Exception as e:
         return JSONResponse({"error": f"Failed to save dossier: {str(e)}"}, status_code=500)
-
-
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run("src.backend.app:app", host="0.0.0.0", port=8000, reload=False)
-
