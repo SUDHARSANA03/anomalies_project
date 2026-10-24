@@ -1,6 +1,6 @@
 import { HyperspectralTelemetry, INITIAL_TELEMETRY, MOCK_CANDIDATE_REGIONS, MOCK_CLUSTERS, CandidateRegion, generateAnomalySignature } from '../data'
 
-const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8000'
+const API_BASE = import.meta.env.VITE_API_BASE || (typeof window !== 'undefined' && window.location.hostname === 'localhost' ? 'http://localhost:8000' : '')
 
 export interface ApiResponse<T> {
   data: T
@@ -12,7 +12,7 @@ export const apiService = {
   // Check backend health
   async checkHealth(): Promise<boolean> {
     try {
-      const res = await fetch(`${API_BASE}/`, { method: 'GET', signal: AbortSignal.timeout(1500) })
+      const res = await fetch(`${API_BASE}/health`, { method: 'GET', signal: AbortSignal.timeout(3000) })
       return res.ok
     } catch {
       return false

@@ -45,10 +45,11 @@ data/cave/
 
 # Frontend
 Frontend/node_modules/
-Frontend/dist/
 Frontend/.vite/
 node_modules/
-dist/
+!Frontend/dist/
+!Frontend/dist/**
+
 
 # OS
 .DS_Store

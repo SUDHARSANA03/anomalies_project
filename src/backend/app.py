@@ -545,9 +545,9 @@ async def upload_image_legacy(
     return await analyze_upload(file=file, algorithm=algorithm, threshold=threshold, variable_name=None)
 
 
-@app.get("/")
 @app.get("/health")
-async def root():
+@app.get("/api/status")
+async def health():
     return {
         "message": "HyperSense AI - Hyperspectral Anomaly Detection Backend API",
         "status": "running",
@@ -686,3 +686,29 @@ async def api_save_dossier(req: SaveDossierRequest):
         return JSONResponse({"success": True, "dossier_id": dossier_id})
     except Exception as e:
         return JSONResponse({"error": f"Failed to save dossier: {str(e)}"}, status_code=500)
+
+
+# ─── FRONTEND STATIC FILES & SPA SERVING ───
+FRONTEND_DIST = os.path.join(PROJECT_ROOT, "Frontend", "dist")
+if os.path.exists(FRONTEND_DIST) and os.path.exists(os.path.join(FRONTEND_DIST, "index.html")):
+    from fastapi.staticfiles import StaticFiles
+    from fastapi.responses import FileResponse
+
+    assets_dir = os.path.join(FRONTEND_DIST, "assets")
+    if os.path.exists(assets_dir):
+        app.mount("/assets", StaticFiles(directory=assets_dir), name="assets")
+
+    @app.get("/{full_path:path}")
+    async def serve_spa(full_path: str):
+        # Don't intercept API routes, health, or docs
+        reserved = ["health", "docs", "openapi.json", "redoc", "analyze-demo", "analyze-upload", "inspect-upload"]
+        if full_path.startswith("api/") or full_path in reserved:
+            return JSONResponse({"error": "Not Found"}, status_code=404)
+        file_path = os.path.join(FRONTEND_DIST, full_path)
+        if full_path and os.path.exists(file_path) and os.path.isfile(file_path):
+            return FileResponse(file_path)
+        return FileResponse(os.path.join(FRONTEND_DIST, "index.html"))
+else:
+    @app.get("/")
+    async def root():
+        return await health()
