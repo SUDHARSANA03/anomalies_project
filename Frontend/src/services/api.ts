@@ -1,6 +1,6 @@
 import { HyperspectralTelemetry, INITIAL_TELEMETRY, MOCK_CANDIDATE_REGIONS, MOCK_CLUSTERS, CandidateRegion, generateAnomalySignature } from '../data'
 
-const API_BASE = 'http://localhost:8000'
+const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8000'
 
 export interface ApiResponse<T> {
   data: T
